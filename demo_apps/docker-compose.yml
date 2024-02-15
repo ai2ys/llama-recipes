@@ -1,0 +1,32 @@
+version: '3.9'
+services:
+  llama2-local:
+    hostname: llama2-local
+    container_name: llama2-local
+    # command: jupyter lab --ip 0.0.0.0 --port 8888 --allow-root
+    working_dir: ${WORKSPACE_DIR}
+    image: ai2ys/llama-recipes/demo-apps:0.0.0
+    build:
+      context: docker
+      dockerfile: HelloLlamaLocalGPU.dockerfile
+    environment:
+      GPU_ID:
+      PORT_JNB:
+      WORKSPACE_DIR:
+    ports:
+      - ${PORT_JNB}:${PORT_JNB}
+    expose:
+      - ${PORT_JNB}
+    volumes:
+      - ../:/workspace/
+      - ${MODEL_DIR_LLAMA}:/workspace/llama_models:ro
+    tty: true
+    # this section is required for the GPU support
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            # specify a single or mutliple GPU indices or UUIDs here
+            device_ids: ['${GPU_ID}']
+            capabilities: [gpu]
